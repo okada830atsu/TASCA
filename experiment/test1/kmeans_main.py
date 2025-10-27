@@ -28,7 +28,7 @@ import torch.nn.functional as F
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.offline as pyo
-from umap import UMAP
+#from umap import UMAP
 import argparse
 import datetime
 

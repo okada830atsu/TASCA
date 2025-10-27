@@ -1,0 +1,17 @@
+
+numpy
+matplotlib
+librosa
+scipy
+scikit-learn
+seaborn
+tqdm
+plotly
+torch
+torchaudio
+torchvision
+google-generativeai 
+python-dotenv
+umap-learn
+
+

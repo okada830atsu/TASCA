@@ -28,7 +28,7 @@ import torch.nn.functional as F
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.offline as pyo
-from umap import UMAP
+#from umap import UMAP
 import argparse
 import datetime
 
@@ -57,16 +57,17 @@ def main():
     # 特徴量抽出
     # =============================================
     feature_extractor = FeatureExtractor()
-    #features = feature_extractor.complex_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
-    features = feature_extractor.mel_spectrogram(data, SAMPLE_RATE, N_FFT, HOP_LENGTH, N_MELS)
+    features = feature_extractor.complex_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
+    #features = feature_extractor.mel_spectrogram(data, SAMPLE_RATE, N_FFT, HOP_LENGTH, N_MELS)
     print(features.shape)
 
     # =============================================
     # クラスタリング
     # =============================================
 
-    #model = DECNet(features.shape[1], LATENT_DIM, N_CLUSTERS).to(device)
-    model = CNN_DECNet(1, LATENT_DIM, N_CLUSTERS, input_shape=(1, features.shape[2], features.shape[3])).to(device)
+    model = DECNet(features.shape[1], LATENT_DIM, N_CLUSTERS).to(device)
+    #model = CNN_DECNet(1, LATENT_DIM, N_CLUSTERS, input_shape=(1, features.shape[2], features.shape[3])).to(device)
+    
     trainer = DEC(N_CLUSTERS, model, LATENT_DIM, device, AE_MODEL_FILE, IMG_DIR, reporter)
     trainer.train_autoencoder(features, AE_EPOCHS, BATCH_SIZE, AE_LEARNING_RATE)
     

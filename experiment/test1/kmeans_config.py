@@ -56,23 +56,10 @@ KEYS                    = "abcdefghijklmnopqrstuvwxyz "
 N_STATES                = 27            # Same as N_STATES for HMM
 
 # =============================================
-# Deep Learning Parameters
-# =============================================
-
-# Autoencoder architecture
-LATENT_DIM              = 64            # Latent space dimension
-
-# Training parameters - Autoencoder
-AE_EPOCHS               = 2000
-AE_LEARNING_RATE        = 2e-3
-BATCH_SIZE              = 32
 
 # Training parameters - DEC
 N_CLUSTERS              = 30            # Number of clusters for overclustering
-DEC_EPOCHS              = 2000
-DEC_LEARNING_RATE       = 1e-3
-UPDATE_INTERVAL         = 100           # Evaluation interval (epochs)
-TOLERANCE               = 5e-5          # Convergence tolerance
+
 
 # =============================================
 # Space Detection Parameters

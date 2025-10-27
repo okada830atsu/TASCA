@@ -31,7 +31,7 @@ class FeatureExtractor:
         for y in data:
             #  MFCC extraction with different window sizes
             mfcc1 = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
-            #mfcc2 = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=4096, hop_length=hop_length)
+            mfcc2 = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=2048, hop_length=hop_length)
             
             # Additional spectral features
             spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
@@ -47,8 +47,11 @@ class FeatureExtractor:
             feature.extend(np.median(mfcc1, axis=1))    # Median
             
             # Second MFCC set with different parameters
-            #feature.extend(np.mean(mfcc2, axis=1))
-            #feature.extend(np.std(mfcc2, axis=1))
+            feature.extend(np.mean(mfcc2, axis=1))
+            feature.extend(np.std(mfcc2, axis=1))
+            feature.extend(np.max(mfcc2, axis=1))       # Maximum
+            feature.extend(np.min(mfcc2, axis=1))       # Minimum
+            feature.extend(np.median(mfcc2, axis=1))    # Median
         
             # Spectral features
             feature.extend([

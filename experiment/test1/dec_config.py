@@ -38,7 +38,7 @@ AE_MODEL_FILE           = "./data/model/autoencoder_model.pth"
 # Number of Keystrokes
 # =============================================
 # [204, 453, 611, 786, 926, 1193, 1492, 1690] for solar-system article
-N_KEYSTROKES            = 204
+N_KEYSTROKES            = 926
 
 
 # =============================================
@@ -61,7 +61,7 @@ N_STATES                = 27            # Same as N_STATES for HMM
 # =============================================
 
 # Autoencoder architecture
-LATENT_DIM              = 64            # Latent space dimension
+LATENT_DIM              = 128            # Latent space dimension
 
 # Training parameters - Autoencoder
 AE_EPOCHS               = 2000
