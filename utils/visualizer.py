@@ -20,9 +20,14 @@ import torch.nn.functional as F
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.offline as pyo
-from umap import UMAP
-import argparse
-import datetime
+try:
+    # 通常のインポート（umap-learn >= 0.5系など）
+    from umap import UMAP
+except ImportError:
+    # 古い構成ではクラスをモジュールから取り出す
+    import umap.umap_ as umap_module
+    UMAP = umap_module.UMAP
+
 
 def visualize_clustering(img_dir, model, features, labels, device, title_suffix=""):
     """Create interactive UMAP visualization of clustering results using Plotly"""

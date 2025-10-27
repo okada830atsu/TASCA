@@ -72,7 +72,7 @@ BATCH_SIZE              = 32
 N_CLUSTERS              = 30            # Number of clusters for overclustering
 DEC_EPOCHS              = 2000
 DEC_LEARNING_RATE       = 1e-3
-UPDATE_INTERVAL         = 10           # Evaluation interval (epochs)
+UPDATE_INTERVAL         = 100           # Evaluation interval (epochs)
 TOLERANCE               = 5e-5          # Convergence tolerance
 
 # =============================================
