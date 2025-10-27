@@ -72,3 +72,20 @@ class FeatureExtractor:
         scaler = StandardScaler()
         features = scaler.fit_transform(features)
         return features
+
+    def mel_spectrogram(self, data, sr, n_fft, hop_length, n_mels=64):
+        features = []
+        for y in data:
+            mel = librosa.feature.melspectrogram(
+                y=y, sr=sr, n_fft=n_fft, hop_length=hop_length, n_mels=n_mels
+            )
+            mel_db = librosa.power_to_db(mel, ref=np.max)
+            mel_norm = (mel_db - mel_db.min()) / (mel_db.max() - mel_db.min() + 1e-6)
+
+            # 軸を (H, W) -> (W, H) にする必要がある場合あり
+            # CNNは (C, H, W) 形式を期待するので以下を追加
+            mel_norm = mel_norm[np.newaxis, :, :]  # (1, 64, T)
+            features.append(mel_norm.astype(np.float32))
+
+        features = np.array(features, dtype=np.float32)  # -> (N, 1, 64, T)
+        return features

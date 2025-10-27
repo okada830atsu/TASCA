@@ -3,7 +3,7 @@ import sys
 sys.path.append("../..")
 
 from utils.feature import FeatureExtractor
-from utils.clustering import TraditionalKMeans, DECNet, DEC, evaluate_clustering, load_data
+from utils.clustering import TraditionalKMeans, DECNet, DEC, CNN_DECNet, evaluate_clustering, load_data
 #from utils.hmm import BigramHMM
 from utils.reporter import Reporter
 from experiment.test1.dec_config import *
@@ -57,14 +57,16 @@ def main():
     # 特徴量抽出
     # =============================================
     feature_extractor = FeatureExtractor()
-    features = feature_extractor.complex_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
+    #features = feature_extractor.complex_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
+    features = feature_extractor.mel_spectrogram(data, SAMPLE_RATE, N_FFT, HOP_LENGTH, N_MELS)
     print(features.shape)
 
     # =============================================
     # クラスタリング
     # =============================================
 
-    model = DECNet(features.shape[1], LATENT_DIM, N_CLUSTERS).to(device)
+    #model = DECNet(features.shape[1], LATENT_DIM, N_CLUSTERS).to(device)
+    model = CNN_DECNet(1, LATENT_DIM, N_CLUSTERS, input_shape=(1, features.shape[2], features.shape[3])).to(device)
     trainer = DEC(N_CLUSTERS, model, LATENT_DIM, device, AE_MODEL_FILE, IMG_DIR, reporter)
     trainer.train_autoencoder(features, AE_EPOCHS, BATCH_SIZE, AE_LEARNING_RATE)
     

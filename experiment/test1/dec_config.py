@@ -48,8 +48,9 @@ N_KEYSTROKES            = 204
 # Audio settings
 SAMPLE_RATE             = 44100
 N_MFCC                  = 128
-N_FFT                   = 8192
-HOP_LENGTH              = 512
+N_MELS                  = 64
+N_FFT                   = 1024
+HOP_LENGTH              = 192
 
 # Character settings
 KEYS                    = "abcdefghijklmnopqrstuvwxyz "

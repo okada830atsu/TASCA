@@ -293,6 +293,114 @@ class DECNet(nn.Module):
         
         return encoded, decoded, q
 
+class CNN_DECNet(nn.Module):
+    def __init__(self, input_channels, latent_dim, n_clusters, input_shape=(1, 64, 86)):
+        super(CNN_DECNet, self).__init__()
+
+        self.input_shape = input_shape  # e.g., (1, 64, 86)
+        self.latent_dim = latent_dim
+        self.n_clusters = n_clusters
+
+        # --- CNN Encoder ---
+        self.encoder_cnn = nn.Sequential(
+            nn.Conv2d(input_channels, 32, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU()
+        )
+
+        # --- flatten size calculation ---
+        with torch.no_grad():
+            dummy = torch.zeros(1, *input_shape)
+            out = self.encoder_cnn(dummy)
+            self.flatten_dim = out.numel()
+
+        # --- latent projection ---
+        self.fc_enc = nn.Sequential(
+            nn.Linear(self.flatten_dim, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, latent_dim)
+        )
+
+        # --- decoder (reverse process) ---
+        self.fc_dec = nn.Sequential(
+            nn.Linear(latent_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, self.flatten_dim),
+            nn.ReLU()
+        )
+
+        # store last feature-map shape
+        self.feature_shape = out.shape[1:]  # (C, H, W)
+
+        self.decoder_cnn = nn.Sequential(
+            nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+
+            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+
+            nn.ConvTranspose2d(32, input_channels, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.Sigmoid()
+        )
+
+        # clustering layer
+        self.clustering_layer = nn.Parameter(torch.Tensor(n_clusters, latent_dim))
+        torch.nn.init.xavier_normal_(self.clustering_layer.data)
+
+    def forward(self, x):
+        z = self.encoder_cnn(x)
+        z_flat = z.view(z.size(0), -1)
+        latent = self.fc_enc(z_flat)
+
+        h = self.fc_dec(latent)
+        h = h.view(h.size(0), *self.feature_shape)
+        x_recon = self.decoder_cnn(h)
+
+        # resize reconstructed output to match input exactly (if needed)
+        if x_recon.shape != x.shape:
+            x_recon = F.interpolate(x_recon, size=x.shape[2:], mode='bilinear', align_corners=False)
+
+        q = 1.0 / (1.0 + torch.sum(torch.pow(latent.unsqueeze(1) - self.clustering_layer, 2), 2))
+        q = q.pow((1.0 + 1.0) / 2.0)
+        q = (q.t() / torch.sum(q, 1)).t()
+
+        return latent, x_recon, q
+        # Encoder
+        z = self.encoder_cnn(x)
+        z = z.view(z.size(0), -1)
+        latent = self.fc_enc(z)
+
+        # Decoder
+        h = self.fc_dec(latent)
+        h = h.view(h.size(0), 256, 4, 4)
+        x_recon = self.decoder_cnn(h)
+
+        # DECクラスタ確率 q
+        q = 1.0 / (1.0 + torch.sum(torch.pow(latent.unsqueeze(1) - self.clustering_layer, 2), 2))
+        q = q.pow((1.0 + 1.0) / 2.0)
+        q = (q.t() / torch.sum(q, 1)).t()
+
+        return latent, x_recon, q
+
 class DEC:
     def __init__(self, n_clusters, model, latent_dim, device, model_path, img_dir, reporter):
         self.n_clusters = n_clusters
