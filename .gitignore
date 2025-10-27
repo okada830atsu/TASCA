@@ -1,0 +1,10 @@
+
+*.app
+*.wav
+*.csv
+*.log
+*.png
+*.npy
+*.pth
+*.pyc
+*.DS_Store
