@@ -13,7 +13,8 @@ class FeatureExtractor:
 
     def simple_mfcc(self, data, sr, n_mfcc, n_fft, hop_length):
         features = []
-        for y in data:
+        for i in range(data.shape[0]):
+            y = data[i,:]
             #  MFCC extraction with different window sizes
             mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
             
@@ -29,10 +30,11 @@ class FeatureExtractor:
 
     def complex_mfcc(self, data, sr, n_mfcc, n_fft, hop_length):
         features = []
-        for y in data:
+        for i in range(data.shape[0]):
+            y = data[i,:]
             #  MFCC extraction with different window sizes
-            mfcc1 = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
-            mfcc2 = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=2048, hop_length=hop_length)
+            mfcc1 = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=8192, hop_length=hop_length)
+            mfcc2 = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=4096, hop_length=hop_length)
             
             # Additional spectral features
             spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
@@ -50,9 +52,7 @@ class FeatureExtractor:
             # Second MFCC set with different parameters
             feature.extend(np.mean(mfcc2, axis=1))
             feature.extend(np.std(mfcc2, axis=1))
-            feature.extend(np.max(mfcc2, axis=1))       # Maximum
-            feature.extend(np.min(mfcc2, axis=1))       # Minimum
-            feature.extend(np.median(mfcc2, axis=1))    # Median
+
         
             # Spectral features
             feature.extend([
@@ -80,7 +80,8 @@ class FeatureExtractor:
     def mel_spectrogram(self, data, sr, n_fft, hop_length, n_mels=64):
 
         features = []
-        for y in data:
+        for i in range(data.shape[0]):
+            y = data[i,:]
             mel = librosa.feature.melspectrogram(
                 y=y, sr=sr, n_fft=n_fft, hop_length=hop_length, n_mels=n_mels
             )
@@ -97,7 +98,8 @@ class FeatureExtractor:
 
     def openl3_embedding(self, data, sr):
         features = []
-        for i,y in enumerate(data):
+        for i in range(data.shape[0]):
+            y = data[i,:]
 
             emb, ts = openl3.get_audio_embedding(
             y, sr, 

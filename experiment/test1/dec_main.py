@@ -4,6 +4,7 @@ sys.path.append("../..")
 
 from utils.feature import FeatureExtractor
 from utils.clustering import TraditionalKMeans, DECNet, DEC, CNN_DECNet, evaluate_clustering, load_data
+from utils.visualizer import visualize_clustering
 #from utils.hmm import BigramHMM
 from utils.reporter import Reporter
 from experiment.test1.dec_config import *
@@ -52,15 +53,18 @@ def main():
     le = LabelEncoder()
     label_ids = le.fit_transform(labels)
     print(f"Number of classes: {len(np.unique(label_ids))}")
+    print(data.shape)
 
     # =============================================
     # 特徴量抽出
     # =============================================
     feature_extractor = FeatureExtractor()
-    #features = feature_extractor.complex_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
+    features = feature_extractor.complex_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
     #features = feature_extractor.mel_spectrogram(data, SAMPLE_RATE, N_FFT, HOP_LENGTH, N_MELS)
-    features = feature_extractor.openl3_embedding(data, SAMPLE_RATE)
+    #features = feature_extractor.openl3_embedding(data, SAMPLE_RATE)
     print(features.shape)
+
+    visualize_clustering(IMG_DIR, None, features, labels, device, "Initial features")
 
     # =============================================
     # クラスタリング
