@@ -38,7 +38,7 @@ AE_MODEL_FILE           = "./data/model/autoencoder_model.pth"
 # Number of Keystrokes
 # =============================================
 # [204, 453, 611, 786, 926, 1193, 1492, 1690] for solar-system article
-N_KEYSTROKES            = 926
+N_KEYSTROKES            = 204
 
 
 # =============================================
@@ -72,7 +72,7 @@ BATCH_SIZE              = 32
 N_CLUSTERS              = 30            # Number of clusters for overclustering
 DEC_EPOCHS              = 2000
 DEC_LEARNING_RATE       = 1e-3
-UPDATE_INTERVAL         = 100           # Evaluation interval (epochs)
+UPDATE_INTERVAL         = 10           # Evaluation interval (epochs)
 TOLERANCE               = 5e-5          # Convergence tolerance
 
 # =============================================

@@ -537,6 +537,7 @@ class DEC:
                     patience_counter = 0
             
             # Training step (use eval mode to keep dropout disabled while allowing gradients)
+            self.model.train()
             _, _, q = self.model(features_tensor)
             loss = F.kl_div(q.log(), p, reduction='batchmean')
             

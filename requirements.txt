@@ -13,5 +13,5 @@ torchvision
 google-generativeai 
 python-dotenv
 umap-learn
-
+openl3
 

@@ -5,6 +5,7 @@ import librosa
 from glob import glob
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from tqdm import tqdm
+import openl3
 
 class FeatureExtractor:
     def __init__(self):
@@ -77,6 +78,7 @@ class FeatureExtractor:
         return features
 
     def mel_spectrogram(self, data, sr, n_fft, hop_length, n_mels=64):
+
         features = []
         for y in data:
             mel = librosa.feature.melspectrogram(
@@ -92,3 +94,23 @@ class FeatureExtractor:
 
         features = np.array(features, dtype=np.float32)  # -> (N, 1, 64, T)
         return features
+
+    def openl3_embedding(self, data, sr):
+        features = []
+        for i,y in enumerate(data):
+
+            emb, ts = openl3.get_audio_embedding(
+            y, sr, 
+            content_type="env",
+            input_repr="mel256", 
+            embedding_size=512,
+            center=False, 
+            hop_size=0.05)
+
+            features.append(emb[0])
+            print(emb[0,:5])
+            print(i)
+        features = np.array(features, dtype=np.float32)
+        return features
+
+

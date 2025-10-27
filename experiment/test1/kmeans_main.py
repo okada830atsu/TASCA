@@ -58,7 +58,8 @@ def main():
     # =============================================
 
     feature_extractor = FeatureExtractor()
-    features = feature_extractor.simple_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
+    #features = feature_extractor.simple_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
+    features = feature_extractor.openl3_embedding(data, SAMPLE_RATE)
     print(features.shape)
 
     # =============================================
