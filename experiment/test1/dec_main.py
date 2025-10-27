@@ -1,10 +1,10 @@
 
 import sys
-sys.path.append("../../utils")
+sys.path.append("../..")
 
-from utils.feature import KmeansFeatureExtractor
-from utils.clustering import TraditionalKMeans, DEC, DECTrainer, evaluate_clustering
-from utils.hmm import BigramHMM
+from utils.feature import FeatureExtractor
+from utils.clustering import TraditionalKMeans, DECNet, DEC, evaluate_clustering, load_data
+#from utils.hmm import BigramHMM
 from utils.reporter import Reporter
 from experiment.test1.dec_config import *
 
@@ -38,35 +38,36 @@ def main():
     # =============================================
     # 初期設定
     # =============================================
+
     reporter = Reporter(LOG_FILE)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
     # =============================================
-    # 特徴量抽出
+    # データ読み込み
     # =============================================
-    feature_extractor = KmeansFeatureExtractor(DATA_DIR, SAMPLE_RATE, N_MFCC, mode="evaluate")
-    features, labels = feature_extractor.extract_features(
-        AE_FEATURE_FILE, AE_LABEL_FILE, N_KEYSTROKES)
-    print(f"Feature shape: {features.shape}")
-    print(f"Number of classes: {len(np.unique(labels))}")
-    
-    # Encode labels for evaluate mode
+
+    data, labels = load_data(DATA_DIR, N_KEYSTROKES, SAMPLE_RATE, label=True)
     le = LabelEncoder()
     label_ids = le.fit_transform(labels)
+    print(f"Number of classes: {len(np.unique(label_ids))}")
+
+    # =============================================
+    # 特徴量抽出
+    # =============================================
+    feature_extractor = FeatureExtractor()
+    features = feature_extractor.complex_mfcc(data, SAMPLE_RATE, N_MFCC, N_FFT, HOP_LENGTH)
+    print(features.shape)
 
     # =============================================
     # クラスタリング
     # =============================================
 
-    
-    # dec
-    model = DEC(len(features[0]), LATENT_DIM, N_CLUSTERS).to(device)
-    trainer = DECTrainer(N_CLUSTERS, model, LATENT_DIM, device, AE_MODEL_FILE, IMG_DIR, reporter)
+    model = DECNet(features.shape[1], LATENT_DIM, N_CLUSTERS).to(device)
+    trainer = DEC(N_CLUSTERS, model, LATENT_DIM, device, AE_MODEL_FILE, IMG_DIR, reporter)
     trainer.train_autoencoder(features, AE_EPOCHS, BATCH_SIZE, AE_LEARNING_RATE)
-
-
+    
     print(f"\nInitializing cluster centers (N_CLUSTERS={N_CLUSTERS})...")
     features_tensor = torch.from_numpy(features).to(device)
     trainer.model.eval()

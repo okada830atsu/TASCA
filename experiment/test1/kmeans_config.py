@@ -38,7 +38,7 @@ AE_MODEL_FILE           = "./data/model/autoencoder_model.pth"
 # Number of Keystrokes
 # =============================================
 # [204, 453, 611, 786, 926, 1193, 1492, 1690] for solar-system article
-N_KEYSTROKES            = 926
+N_KEYSTROKES            = 611
 
 
 # =============================================
@@ -48,6 +48,8 @@ N_KEYSTROKES            = 926
 # Audio settings
 SAMPLE_RATE             = 44100
 N_MFCC                  = 64
+N_FFT                   = 8192
+HOP_LENGTH              = 512
 
 # Character settings
 KEYS                    = "abcdefghijklmnopqrstuvwxyz "

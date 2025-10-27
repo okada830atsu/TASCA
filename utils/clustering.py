@@ -27,6 +27,28 @@ import datetime
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
+def load_data(data_dir, keystroke_count, sample_rate, label):
+
+    data   = []
+    labels = []
+
+    file_paths = sorted(glob(os.path.join(data_dir, "*.wav")))[:keystroke_count]
+    
+    print(f"Extracting  features from {len(file_paths)} files...")
+    
+    for path in tqdm(file_paths, desc="Extracting features"):
+        filename = os.path.basename(path)
+        
+        if label:
+            labels.append(filename.split('_')[1].split('.')[0])
+        else:
+            labels.append(filename.split('.')[0])
+        
+        y, sr = librosa.load(path, sr=sample_rate)
+        data.append(y)
+
+    return np.array(data), np.array(labels)
+
 def calculate_accuracy(predictions, true_labels):
     """
     クラスタリングの正解率を計算する関数。
@@ -221,9 +243,9 @@ class TraditionalKMeans:
         
         return self.labels_
  
-class DEC(nn.Module):
+class DECNet(nn.Module):
     def __init__(self, input_dim, latent_dim, n_clusters):
-        super(DEC, self).__init__()
+        super(DECNet, self).__init__()
         
         #  encoder with BatchNorm and Dropout
         self.encoder = nn.Sequential(
@@ -271,7 +293,7 @@ class DEC(nn.Module):
         
         return encoded, decoded, q
 
-class DECTrainer:
+class DEC:
     def __init__(self, n_clusters, model, latent_dim, device, model_path, img_dir, reporter):
         self.n_clusters = n_clusters
         self.model = model
@@ -281,7 +303,9 @@ class DECTrainer:
         self.img_dir = img_dir
         self.reporter = reporter
         self.best_accuracy = 0.0
-    
+
+
+
     def train_autoencoder(self, features, epochs, batch_size, learning_rate):
         """Train the autoencoder with learning rate scheduling or load saved model"""
         
